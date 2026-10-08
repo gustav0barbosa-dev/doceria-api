@@ -78,3 +78,29 @@ class Doce:
         if novo_estoque < 0:
             raise ValueError('estoque não pode ficar negativo')
         self._estoque = novo_estoque
+
+
+    def calcular_subtotal(self, quantidade):
+        """Mesma conta para todos: so as constantes mudam. Nenhum if de tipo."""
+        self.validar_quantidade(quantidade)
+        return round(self._preco * quantidade / self.DIVISOR_PRECO, 2)
+
+
+class DoceUnidade(Doce):
+    """Vendido por unidade: brigadeiro, fatia de bolo, pao de mel."""
+
+    TIPO = 'unidade'
+    UNIDADE_ESTOQUE = 'un'
+    UNIDADE_PRECO = 'un'
+    DIVISOR_PRECO = 1
+    QUANTIDADE_MINIMA = 1
+
+
+class DocePorPeso(Doce):
+    """Vendido a granel: preco por kg, estoque e venda em gramas."""
+
+    TIPO = 'peso'
+    UNIDADE_ESTOQUE = 'g'
+    UNIDADE_PRECO = 'kg'
+    DIVISOR_PRECO = 1000
+    QUANTIDADE_MINIMA = 50
