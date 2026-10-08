@@ -79,11 +79,41 @@ class Doce:
             raise ValueError('estoque não pode ficar negativo')
         self._estoque = novo_estoque
 
+    # --- comportamento ---
+    def tem_nome(self, nome):
+        return self._nome.lower() == nome.strip().lower()
+
+    def e_da_categoria(self, categoria):
+        return self._categoria.lower() == categoria.strip().lower()
+
+    def esta_esgotado(self):
+        return self._estoque == 0
+
+    def validar_quantidade(self, quantidade):
+        if quantidade < self.QUANTIDADE_MINIMA:
+            raise ValueError(
+                f'quantidade mínima de {self._nome} é '
+                f'{self.QUANTIDADE_MINIMA} {self.UNIDADE_ESTOQUE}')
+
+    def verificar_estoque(self, quantidade):
+        self.validar_quantidade(quantidade)
+        if quantidade > self._estoque:
+            raise EstoqueInsuficiente(
+                f'estoque insuficiente de {self._nome}: pediu '
+                f'{quantidade} {self.UNIDADE_ESTOQUE}, restam '
+                f'{self._estoque} {self.UNIDADE_ESTOQUE}')
+
+    def retirar_estoque(self, quantidade):
+        self.verificar_estoque(quantidade)
+        self.alterar_estoque(self._estoque - quantidade)
 
     def calcular_subtotal(self, quantidade):
         """Mesma conta para todos: so as constantes mudam. Nenhum if de tipo."""
         self.validar_quantidade(quantidade)
         return round(self._preco * quantidade / self.DIVISOR_PRECO, 2)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self._nome})'
 
 
 class DoceUnidade(Doce):
@@ -104,3 +134,34 @@ class DocePorPeso(Doce):
     UNIDADE_PRECO = 'kg'
     DIVISOR_PRECO = 1000
     QUANTIDADE_MINIMA = 50
+
+    def validar_quantidade(self, quantidade):
+        super().validar_quantidade(quantidade)
+        if quantidade % self.QUANTIDADE_MINIMA != 0:
+            raise ValueError(
+                f'{self._nome} é vendido em múltiplos de '
+                f'{self.QUANTIDADE_MINIMA} {self.UNIDADE_ESTOQUE}')
+
+    def mostrar_descricao(self):
+        return (super().mostrar_descricao()
+                + f' — porções de {self.QUANTIDADE_MINIMA} g')
+
+
+# o valor do dicionario e a propria CLASSE, nao um texto
+PERFIS = {
+    'unidade': DoceUnidade,
+    'peso': DocePorPeso,
+}
+
+
+def criar_doce(dados):
+    """Transforma um dicionario (do mock ou do POST) em um objeto."""
+    if dados['tipo'] not in PERFIS:
+        raise ValueError('tipo de doce inválido: use "unidade" ou "peso"')
+    return PERFIS[dados['tipo']](dados['id'], dados['nome'],
+                                 dados['categoria'], dados['preco'],
+                                 dados['estoque'])
+
+
+def carregar_doces():
+    return [criar_doce(d) for d in DOCES]
