@@ -232,7 +232,7 @@ TUDO CERTO. Agora suba a API e teste no /docs.
 
 | Integrante | Responsabilidade |
 | ---------- | ---------------- |
-| Gustavo Henrique | models(doce e pedido), requirements.txt, testar_rotas.py, veririficar.py |
+| Gustavo Henrique | models(doce e pedido), testar_rotas.py, veririficar.py |
 | Felipe Cunha | controllers |
 | Guilherme Henrique |  README e diagrama_ |
 | Gabriel dos Santos | routes, data, main.py |
