@@ -1,19 +1,24 @@
 # Doceria API
 
-API para o projeto de doceria. Este repositório ainda está no estágio de estrutura inicial: os arquivos da aplicação, das dependências e dos testes estão vazios. Por isso, não há endpoints, entidades, regras de negócio ou comandos de execução implementados para documentar neste momento.
+API REST para cadastro de doces, consulta de estoque e registro de vendas,
+desenvolvida em Python com FastAPI. A aplicação organiza o código em rotas,
+controllers, models e dados mockados em memória; não há persistência em banco
+de dados.
 
-## Estado atual
+## Funcionalidades
 
-- Linguagem identificada pela estrutura do projeto: Python.
-- Os pacotes estão organizados em rotas, controllers, models e data.
-- `requirements.txt` ainda não declara dependências.
-- `main.py`, `testar_rotas.py` e `verificar.py` ainda não possuem implementação.
+- Listar doces e consultar estoque.
+- Cadastrar doces vendidos por unidade ou por peso.
+- Registrar pedidos, calcular totais e atualizar o estoque.
+- Consultar pedidos e o relatório de ticket médio.
+- Aplicar validações de domínio para preços, quantidades, estoque e pedidos.
 
 ## Diagrama de classes
 
 Diagrama UML das classes de domínio da **Doceria API** (`app/models/`): `Doce`, `DoceUnidade`, `DocePorPeso` e `Pedido`.
 
-> O diagrama documenta o modelo de domínio pretendido. As classes ainda não estão implementadas nos arquivos do projeto.
+> O diagrama representa as classes implementadas em `app/models/doce.py` e
+> `app/models/pedido.py`.
 
 Convenção de visibilidade usada:
 
@@ -57,10 +62,6 @@ classDiagram
     }
     class DoceUnidade {
         +TIPO = unidade
-        +UNIDADE_ESTOQUE = un
-        +UNIDADE_PRECO = un
-        +DIVISOR_PRECO = 1
-        +QUANTIDADE_MINIMA = 1
     }
     class DocePorPeso {
         +TIPO = peso
@@ -99,22 +100,88 @@ classDiagram
 ## Estrutura do projeto
 
 ```text
-.
-├── app/
-│   ├── controllers/   # Camada prevista para coordenação das regras da aplicação
-│   ├── data/          # Camada prevista para acesso ou preparação de dados
-│   ├── models/        # Camada prevista para os modelos do domínio
-│   └── routes/        # Camada prevista para as rotas da API
-├── main.py            # Ponto de entrada previsto
-├── requirements.txt   # Dependências Python do projeto
-├── testar_rotas.py    # Arquivo previsto para testes de rotas
-└── verificar.py       # Script de verificação previsto
+doceria-api/
+├── main.py
+├── requirements.txt
+├── verificar.py
+├── testar_rotas.py
+└── app/
+    ├── data/
+    │   ├── doces_mock.py
+    │   └── pedidos_mock.py
+    ├── models/
+    │   ├── doce.py
+    │   └── pedido.py
+    ├── controllers/
+    │   ├── doce_controller.py
+    │   └── pedido_controller.py
+    └── routes/
+        ├── doce_routes.py
+        └── pedido_routes.py
 ```
 
-As responsabilidades descritas para as pastas são propostas com base em seus nomes; ainda não há código implementado que as confirme.
+Fluxo das dependências: `main.py → routes → controllers → models → data`.
+Os models contêm as regras de domínio e não dependem do FastAPI.
 
-## Requisitos
+## Como executar
 
-- Python 3 instalado.
+Requer Python 3.9 ou superior.
 
-Ainda não é possível iniciar a API ou executar testes: não há implementação de aplicação, dependências declaradas nem casos de teste. Quando esses componentes forem adicionados, documente aqui a versão de Python suportada, os passos de instalação, o comando para iniciar o servidor e como executar a suíte de testes.
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+Em Linux ou macOS, ative o ambiente virtual com `source .venv/bin/activate`.
+Com a API em execução, acesse `http://127.0.0.1:8000/docs` para explorar e
+testar os endpoints pela documentação interativa.
+
+## Endpoints
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/api/doces` | Lista os doces cadastrados. |
+| `POST` | `/api/doces` | Cadastra um doce. |
+| `GET` | `/api/estoque` | Consulta o estoque. |
+| `GET` | `/api/pedidos` | Lista os pedidos. |
+| `GET` | `/api/pedidos/{id}` | Consulta um pedido. |
+| `POST` | `/api/pedidos` | Registra uma venda e atualiza o estoque. |
+| `GET` | `/api/relatorio/ticket-medio` | Consulta o ticket médio das vendas. |
+
+Exemplo de corpo para `POST /api/doces`:
+
+```json
+{
+  "nome": "Brigadeiro",
+  "categoria": "Doces",
+  "tipo": "unidade",
+  "preco": 3.5,
+  "estoque": 100
+}
+```
+
+Exemplo de corpo para `POST /api/pedidos` (quantidade em unidades ou gramas,
+conforme o tipo do doce):
+
+```json
+{
+  "itens": [
+    { "doce_id": 1, "quantidade": 2 },
+    { "doce_id": 6, "quantidade": 250 }
+  ]
+}
+```
+
+## Verificações
+
+```powershell
+python verificar.py
+python testar_rotas.py
+```
+
+O teste de rotas usa o `TestClient` do FastAPI e requer `httpx`, que pode ser
+instalado com `pip install httpx`. Os dados de doces e pedidos vêm de mocks e
+ficam em memória durante a execução; reiniciar a aplicação restaura os dados
+iniciais.
