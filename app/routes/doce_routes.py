@@ -20,13 +20,15 @@ def listar():
     return controller.listar()
 
 
+"""
+===========|excedito o limite de rotas proposto pelo desafio.|=============
 @router.get('/doces/categoria/{categoria}')
 def listar_por_categoria(categoria: str):
     doces = controller.listar_por_categoria(categoria)
     if not doces:
         raise HTTPException(404, 'nenhum doce nessa categoria')
     return doces
-
+"""
 
 @router.post('/doces', status_code=201)
 def cadastrar(dados: DoceRequest):
