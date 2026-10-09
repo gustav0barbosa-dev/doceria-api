@@ -134,7 +134,7 @@ Doce por peso: preço por **kg**, estoque e venda em **gramas**.
 | Método | Rota | Função | Respostas |
 | ------ | ---- | ------ | --------- |
 | GET | `/api/doces` | Listar os doces | 200 |
-| GET | `/api/doces/categoria/{cat}` | Filtrar por categoria | 200, 404 |
+| GET | `/api/doces/categoria/{cat}` | Filtrar por categoria | 200, 404 | - "retirado por exceder quantidade de rotas proposta pelo desafio"
 | POST | `/api/doces` | Cadastrar um doce | 201, 409, 422 |
 | GET | `/api/estoque` | Consultar o estoque | 200 |
 | POST | `/api/pedidos` | Registrar uma venda | 201, 404, 409, 422 |
