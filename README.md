@@ -9,43 +9,92 @@ API para o projeto de doceria. Este repositório ainda está no estágio de estr
 - `requirements.txt` ainda não declara dependências.
 - `main.py`, `testar_rotas.py` e `verificar.py` ainda não possuem implementação.
 
-O diagrama abaixo documenta a organização atual das pastas e uma direção arquitetural sugerida. Os elementos são módulos, não classes já implementadas; atualize o diagrama quando a aplicação e seus modelos forem definidos.
-
 ## Diagrama de classes
+
+Diagrama UML das classes de domínio da **Doceria API** (`app/models/`): `Doce`, `DoceUnidade`, `DocePorPeso` e `Pedido`.
+
+> O diagrama documenta o modelo de domínio pretendido. As classes ainda não estão implementadas nos arquivos do projeto.
+
+Convenção de visibilidade usada:
+
+- `+` público
+- `-` protegido (atributos com um sublinhado no código, como `_nome`)
+- `$` constante de classe
 
 ```mermaid
 classDiagram
-direction LR
+    class Doce {
+        -int _id
+        -str _nome
+        -str _categoria
+        -float _preco
+        -int _estoque
+        +str TIPO$
+        +str UNIDADE_ESTOQUE$
+        +str UNIDADE_PRECO$
+        +int DIVISOR_PRECO$
+        +int QUANTIDADE_MINIMA$
+        +mostrar_id() int
+        +mostrar_nome() str
+        +mostrar_categoria() str
+        +mostrar_preco() float
+        +mostrar_estoque() int
+        +mostrar_tipo() str
+        +mostrar_unidade_estoque() str
+        +mostrar_unidade_preco() str
+        +mostrar_descricao() str
+        +alterar_nome(novo_nome)
+        +alterar_categoria(nova_categoria)
+        +alterar_preco(novo_preco)
+        +alterar_estoque(novo_estoque)
+        +tem_nome(nome) bool
+        +e_da_categoria(categoria) bool
+        +esta_esgotado() bool
+        +validar_quantidade(quantidade)
+        +verificar_estoque(quantidade)
+        +retirar_estoque(quantidade)
+        +calcular_subtotal(quantidade) float
+    }
+    class DoceUnidade {
+        +TIPO = unidade
+        +UNIDADE_ESTOQUE = un
+        +UNIDADE_PRECO = un
+        +DIVISOR_PRECO = 1
+        +QUANTIDADE_MINIMA = 1
+    }
+    class DocePorPeso {
+        +TIPO = peso
+        +UNIDADE_ESTOQUE = g
+        +UNIDADE_PRECO = kg
+        +DIVISOR_PRECO = 1000
+        +QUANTIDADE_MINIMA = 50
+        +validar_quantidade(quantidade)
+        +mostrar_descricao() str
+    }
+    class Pedido {
+        -int _id
+        -list _itens
+        -bool _efetivado
+        +mostrar_id() int
+        +mostrar_itens() list
+        +esta_efetivado() bool
+        +alterar_itens(itens)
+        +calcular_total() float
+        +efetivar()
+    }
 
-class MainModule {
-  <<module>>
-}
-class RoutesPackage {
-  <<package>>
-}
-class ControllersPackage {
-  <<package>>
-}
-class ModelsPackage {
-  <<package>>
-}
-class DataPackage {
-  <<package>>
-}
-class RouteTests {
-  <<test module>>
-}
-class VerificationScript {
-  <<script>>
-}
-
-MainModule ..> RoutesPackage : registro sugerido
-RoutesPackage ..> ControllersPackage : fluxo sugerido
-ControllersPackage ..> ModelsPackage : uso sugerido
-ControllersPackage ..> DataPackage : acesso sugerido
-RouteTests ..> RoutesPackage : teste sugerido
-VerificationScript ..> MainModule : verificação sugerida
+    Doce <|-- DoceUnidade
+    Doce <|-- DocePorPeso
+    Pedido "0..*" -- "1..*" Doce : itens vendidos
 ```
+
+## Relações
+
+- **Herança** (triângulo vazio): `DoceUnidade` e `DocePorPeso` herdam de `Doce`. As filhas mudam as constantes de classe; `DocePorPeso` ainda sobrescreve `validar_quantidade()` e `mostrar_descricao()`, chamando `super()`.
+- **Associação** `Pedido` — `Doce`:
+  - Um `Pedido` tem **1 ou mais** doces (`1..*`): pedido vazio é recusado em `Pedido.alterar_itens()`.
+  - Um `Doce` aparece em **0 ou mais** pedidos (`0..*`): um doce pode nunca ter sido vendido.
+  - O pedido guarda os próprios objetos `Doce`, junto com a quantidade vendida de cada um. Não é composição, porque o doce existe sem o pedido e continua existindo depois dele.
 
 ## Estrutura do projeto
 
