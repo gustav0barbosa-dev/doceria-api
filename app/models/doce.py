@@ -120,10 +120,7 @@ class DoceUnidade(Doce):
     """Vendido por unidade: brigadeiro, fatia de bolo, pao de mel."""
 
     TIPO = 'unidade'
-    UNIDADE_ESTOQUE = 'un'
-    UNIDADE_PRECO = 'un'
-    DIVISOR_PRECO = 1
-    QUANTIDADE_MINIMA = 1
+ 
 
 
 class DocePorPeso(Doce):

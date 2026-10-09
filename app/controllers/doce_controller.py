@@ -7,7 +7,7 @@ class DoceController:
 
     def listar(self):
         return [self._para_dicionario(d) for d in self._doces]
-
+    
     def listar_por_categoria(self, categoria):
         da_categoria = [d for d in self._doces if d.e_da_categoria(categoria)]
         return [self._para_dicionario(d) for d in da_categoria]
